@@ -21,7 +21,7 @@ class UserService:
     @inject  # 주입받은 객체를 사용한다고 선언
     def __init__(self,
                  user_repo: InterfaceUserRepository):  # user_repo 팩토리를 선언해두었기 때문에 타입 선언만으로도 UserService가 생성될 때 팩토리를 수행한 객체가 주입
-        self.user_repo: user_repo  # 의존성 역전
+        self.user_repo = user_repo  # 의존성 역전
         self.ulid = ULID()
         self.crypto = Crypto()
 
@@ -49,4 +49,18 @@ class UserService:
             updated_at=now,
         )
         self.user_repo.save(user)
+        return user
+
+    def update_user(self, user_id: str, name: str | None = None, password: str | None = None,
+                    memo: str | None = None, ):
+        user = self.user_repo.find_by_id(user_id)
+
+        if name:
+            user.name = name
+        if password:
+            user.password = self.crypto.encrypt(password)
+        user.updated_at = datetime.now()
+
+        self.user_repo.update(user)
+
         return user
