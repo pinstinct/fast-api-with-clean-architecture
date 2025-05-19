@@ -65,6 +65,14 @@ python main.py
 
 각 계층의 구성 요소는 다른 계층의 구성 요소를 가져다 쓰게 된다. 즉, 의존성이 발생한다. 클린 아키텍처의 의존성 규칙은 그 의존성의 방향이 안으로 향하는 데에 있다.
 
+### 의존성 주입
+
+의존성 주입의 세 가지 유형
+
+- 생성자 주입(constructor injection)
+- 세터 주입(setter injection)
+- 메서드 주입(method injection)
+
 ### 기능
 
 #### User 앱
