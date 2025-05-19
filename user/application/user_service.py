@@ -1,12 +1,11 @@
 from datetime import datetime
-from typing import Annotated
 
-from fastapi import HTTPException, Depends
+from dependency_injector.wiring import inject
+from fastapi import HTTPException
 from ulid import ULID
 
 from user.domain.repository.user_repo import InterfaceUserRepository
 from user.domain.user import User
-from user.infra.repository.user_repo import UserRepository
 from utils.crypto import Crypto
 
 
@@ -19,8 +18,10 @@ class UserService:
     ULID는 첫 48비트를 현재 타임스탬프 기반으로 생성한다. 때문에 검색 성능을 향상할 수 있다.
     """
 
-    def __init__(self):
-        self.user_repo: Annotated[InterfaceUserRepository, Depends(UserRepository)]  # 의존성 역전
+    @inject  # 주입받은 객체를 사용한다고 선언
+    def __init__(self,
+                 user_repo: InterfaceUserRepository):  # user_repo 팩토리를 선언해두었기 때문에 타입 선언만으로도 UserService가 생성될 때 팩토리를 수행한 객체가 주입
+        self.user_repo: user_repo  # 의존성 역전
         self.ulid = ULID()
         self.crypto = Crypto()
 
