@@ -15,6 +15,7 @@ class UserRepository(InterfaceUserRepository):
             email=user.email,
             name=user.name,
             password=user.password,
+            memo=user.memo,
             created_at=user.created_at,
             updated_at=user.updated_at,
         )

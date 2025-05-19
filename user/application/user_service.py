@@ -25,7 +25,7 @@ class UserService:
         self.ulid = ULID()
         self.crypto = Crypto()
 
-    def create_user(self, name: str, email: str, password: str):
+    def create_user(self, name: str, email: str, password: str, memo: str | None = None, ):
         _user = None  # 데이터베이스에서 찾은 유저
 
         try:
@@ -44,8 +44,9 @@ class UserService:
             name=name,
             email=email,
             password=self.crypto.encrypt(password),
+            memo=memo,
             created_at=now,
-            updated_at=now
+            updated_at=now,
         )
         self.user_repo.save(user)
         return user

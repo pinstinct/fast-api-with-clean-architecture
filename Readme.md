@@ -13,6 +13,22 @@ mysql> CREATE SCHEMA `fastapi-ca;
 python main.py
 ```
 
+## Alembic
+
+```shell
+# 리비전 파일 자동 생성 
+# -m 옵션: 메시지 작성
+alembic revision --autogenerate -m "add User Table"
+
+# 수행 (revision 파일의 upgrade 함수 실행)
+# head 옵션: 가장 최신의 리비전 파일 수행 
+alembic upgrade head
+
+# 취소
+alembic downgrade head
+```
+
+
 ## 프로젝트 구조
 
 ### 아키텍처
