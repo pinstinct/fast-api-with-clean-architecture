@@ -65,7 +65,7 @@ class UserRepository(InterfaceUserRepository):
 
             offset = (page - 1) * items_per_page
             users = query.limit(items_per_page).offset(offset).all()
-        return [UserVO(**row_to_dict(user)) for user in users]
+        return total_count, [UserVO(**row_to_dict(user)) for user in users]
 
     def delete(self, id: str):
         with SessionLocal() as db:
