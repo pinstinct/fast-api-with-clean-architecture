@@ -26,7 +26,8 @@ class UserService:
         self.crypto = Crypto()
 
     def create_user(
-        self,name: str,email: str,password: str,memo: str | None = None,
+        self, name: str, email: str, password: str, memo: str | None = None,
+
     ):
         _user = None  # 데이터베이스에서 찾은 유저
 
