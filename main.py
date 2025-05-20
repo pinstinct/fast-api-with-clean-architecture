@@ -5,10 +5,14 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 from containers import Container
+from example.async_ex import router as async_ex_routers
+from example.sync_ex import router as sync_ex_routers
 from user.interface.controller.user_controller import router as user_routers
 
 app = FastAPI()
 app.include_router(user_routers)
+app.include_router(sync_ex_routers)
+app.include_router(async_ex_routers)
 app.container = Container()  # 어플리케이션 구동 시, 작성한 컨테이너 클래스 등록
 
 
