@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr, Field
 
+from common.auth import CurrentUser, get_current_user
 from containers import Container
 from user.application.user_service import UserService
 
@@ -21,7 +22,7 @@ class CreateUserBody(BaseModel):
     password: str = Field(min_length=8, max_length=32)
 
 
-class UpdateUser(BaseModel):
+class UpdateUserBody(BaseModel):
     name: str | None = Field(min_length=2, max_length=32, default=None)
     password: str | None = Field(min_length=8, max_length=32, default=None)
 
@@ -49,14 +50,18 @@ def create_user(user: CreateUserBody, user_service: UserService = Depends(
     return created_user
 
 
-@router.put("/{user_id}")
+@router.put("")
 @inject
-def update_user(user_id: str, user: UpdateUser, user_service: UserService = Depends(
-        Provide[Container.user_service])) -> UserResponse:
+def update_user(
+        # get_current_user 수행 결과를 주입 받으므로, 따로 user_id를 전달받을 필요가 없다.
+        current_user: Annotated[CurrentUser, Depends(get_current_user)],
+        body: UpdateUserBody,
+        user_service: UserService = Depends(Provide[Container.user_service]),
+) -> UserResponse:
     user = user_service.update_user(
-        user_id=user_id,
-        name=user.name,
-        password=user.password)
+        user_id=current_user.id,
+        name=body.name,
+        password=body.password)
     return user
 
 
@@ -74,9 +79,9 @@ def get_users(page: int = 1,
 @router.delete("", status_code=204)
 @inject
 def delete_user(
-        user_id: str,
+        current_user: Annotated[CurrentUser, Depends(get_current_user())],
         user_service: UserService = Depends(Provide[Container.user_service]),):
-    user_service.delete_user(user_id)
+    user_service.delete_user(current_user.id)
 
 
 @router.post("/login")
