@@ -19,13 +19,19 @@ class UserService:
     """
 
     @inject  # 주입받은 객체를 사용한다고 선언
-    def __init__(self,
-                 user_repo: InterfaceUserRepository):  # user_repo 팩토리를 선언해두었기 때문에 타입 선언만으로도 UserService가 생성될 때 팩토리를 수행한 객체가 주입
+    # user_repo 팩토리를 선언해두었기 때문에 타입 선언만으로도 UserService가 생성될 때 팩토리를 수행한 객체가 주입
+    def __init__(self, user_repo: InterfaceUserRepository):
         self.user_repo = user_repo  # 의존성 역전
         self.ulid = ULID()
         self.crypto = Crypto()
 
-    def create_user(self, name: str, email: str, password: str, memo: str | None = None, ):
+    def create_user(
+        self,
+        name: str,
+        email: str,
+        password: str,
+        memo: str | None = None,
+    ):
         _user = None  # 데이터베이스에서 찾은 유저
 
         try:
@@ -35,7 +41,8 @@ class UserService:
                 raise e
 
         if _user:
-            # 422(Unprocessable Content): 서버가 요청 엔티티 콘텐츠 형식을 이해했고 요청 엔티티의 문법도 올바르지만 요청된 지시를 처리할 수 없음
+            # 422(Unprocessable Content): 서버가 요청 엔티티 콘텐츠 형식을 이해했고 요청 엔티티의 문법도 올바르지만
+            # 요청된 지시를 처리할 수 없음
             raise HTTPException(status_code=422)
 
         now = datetime.now()
@@ -51,8 +58,13 @@ class UserService:
         self.user_repo.save(user)
         return user
 
-    def update_user(self, user_id: str, name: str | None = None, password: str | None = None,
-                    memo: str | None = None, ):
+    def update_user(
+        self,
+        user_id: str,
+        name: str | None = None,
+        password: str | None = None,
+        memo: str | None = None,
+    ):
         user = self.user_repo.find_by_id(user_id)
 
         if name:

@@ -26,16 +26,13 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.3.2"
 isort = "^6.0.1"
+pre-commit = "^4.2.0"
 
 
-# ====================
-# 포맷터 설정
-# ====================
 [tool.isort]
 line_length = 88
 multi_line_output = 3
 include_trailing_comma = true
-force_grid_wrap = 0
 use_parentheses = true
 skip = [".venv", "build", "dist"]
 

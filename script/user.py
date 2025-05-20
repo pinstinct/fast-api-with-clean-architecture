@@ -1,3 +1,6 @@
+from utils.crypto import Crypto
+from user.infra.db_models.user import User
+from database import SessionLocal
 import os.path
 import sys
 from datetime import datetime
@@ -6,9 +9,6 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(SCRIPT_DIR)
 sys.path.insert(0, ROOT_DIR)  # import문의 모듈을 찾을 때 참조하는 경로 리스트에 ROOT_DIR 추가
 
-from database import SessionLocal
-from user.infra.db_models.user import User
-from utils.crypto import Crypto
 
 if __name__ == "__main__":
     with SessionLocal() as db:

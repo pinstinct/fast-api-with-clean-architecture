@@ -28,6 +28,19 @@ alembic upgrade head
 alembic downgrade head
 ```
 
+## 포맷팅
+
+```shell
+isrot .
+autopep8 --in-place --aggressive --aggressive --recursive .
+```
+
+### pre-commit
+
+```shell
+pre-commit clean
+pre-commit install --install-hooks
+```
 
 ## 프로젝트 구조
 
