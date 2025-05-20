@@ -10,4 +10,4 @@ repos:
     hooks:
       - id: autopep8
         files: \.py$
-        args: [--aggressive, --aggressive]
+        args: [--aggressive, --aggressive, --recursive, --in-place]

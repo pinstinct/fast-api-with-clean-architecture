@@ -1,9 +1,10 @@
-from utils.crypto import Crypto
-from user.infra.db_models.user import User
-from database import SessionLocal
 import os.path
 import sys
 from datetime import datetime
+
+from database import SessionLocal
+from user.infra.db_models.user import User
+from utils.crypto import Crypto
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(SCRIPT_DIR)
