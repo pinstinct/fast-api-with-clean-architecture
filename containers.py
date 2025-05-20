@@ -1,5 +1,7 @@
 from dependency_injector import containers, providers
 
+from note.application.note_service import NoteService
+from note.infra.repository.note_repo import NoteRepository
 from user.application.user_service import UserService
 from user.infra.repository.user_repo import UserRepository
 
@@ -11,7 +13,7 @@ class Container(containers.DeclarativeContainer):
     이렇게 되면 주입할 때의 타입을 인터페이스로 선언하더라도 실제로 주입되는 객체는 구현체가 되도록 할 수 있게 한다.
     """
     # 의존성을 사용할 모듈 선언
-    wiring_config = containers.WiringConfiguration(packages=["user"], )
+    wiring_config = containers.WiringConfiguration(packages=["user", "note", ], )
 
     # 의존성을 제공할 모듈을 팩토리에 등록
     # providers 모듈에는 다양한 종류의 프로바이더를 제공
@@ -19,3 +21,5 @@ class Container(containers.DeclarativeContainer):
     # Singleton: 처음 호출될 때 생성한 객체를 재활용
     user_repo = providers.Factory(UserRepository)
     user_service = providers.Factory(UserService, user_repo=user_repo)
+    note_repo = providers.Factory(NoteRepository)
+    note_service = providers.Factory(NoteService, note_repo=note_repo)
