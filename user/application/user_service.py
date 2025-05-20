@@ -27,8 +27,7 @@ class UserService:
 
     def create_user(
         self,
-        name: str,
-        email: str,
+        name: str, email: str,
         password: str,
         memo: str | None = None,
     ):
