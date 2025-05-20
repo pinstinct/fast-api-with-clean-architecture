@@ -1,7 +1,9 @@
 from datetime import datetime
+from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr, Field
 
 from containers import Container
@@ -75,3 +77,15 @@ def delete_user(
         user_id: str,
         user_service: UserService = Depends(Provide[Container.user_service]),):
     user_service.delete_user(user_id)
+
+
+@router.post("/login")
+@inject
+def logi(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],  # form-data로 데이터를 전달받아야 하고, 데이터 형식은 username과 password로 고정, OAuth2 스펙에 정의
+         user_service: UserService = Depends(Provide[Container.user_service]), ):
+    access_token = user_service.login(
+        email=form_data.username,
+        password=form_data.password
+    )
+
+    return {"access_token": access_token, "token_type": "bearer"}  # OAuth2 스펙에 정의
