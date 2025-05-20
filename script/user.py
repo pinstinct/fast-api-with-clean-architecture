@@ -6,6 +6,7 @@ from database import SessionLocal
 from user.infra.db_models.user import User
 from utils.crypto import Crypto
 
+# 실행 시, 위치를 패키지 import 위로 올린다
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(SCRIPT_DIR)
 sys.path.insert(0, ROOT_DIR)  # import문의 모듈을 찾을 때 참조하는 경로 리스트에 ROOT_DIR 추가
