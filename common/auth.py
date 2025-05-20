@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from enum import StrEnum
 
 from fastapi import HTTPException
 from jose import JWTError, jwt
@@ -8,9 +9,19 @@ SECRET_KEY = "THIS_IS_SUPER_SECRET_KEY"
 ALGORITHM = "HS256"
 
 
-def create_access_token(payload: dict, expires_delta: timedelta = timedelta(hours=6), ):
+class Role(StrEnum):
+    ADMIN = "ADMIN"
+    USER = "USER"
+
+
+def create_access_token(
+    payload: dict,
+    role: Role,
+    expires_delta: timedelta = timedelta(
+        hours=6),
+):
     expire = datetime.utcnow() + expires_delta
-    payload.update({"exp": expire})  # 6시간 후 만료
+    payload.update({"role": role, "exp": expire, })  # 6시간 후 만료
     encoded_jwt = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
