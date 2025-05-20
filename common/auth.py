@@ -55,3 +55,11 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         # 403 Forbidden: 서버에 요청이 전달되었지만, 권한 때문에 거절되었다는 것을 의미
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
     return CurrentUser(user_id, Role(role))
+
+
+def get_admin_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    payload = decode_access_token(token)
+    role = payload.get("role")
+    if not role or role != Role.ADMIN:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
+    return CurrentUser("ADMIN_USER_ID", role)
