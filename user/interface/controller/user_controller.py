@@ -50,3 +50,12 @@ def get_users(
         user_service: UserService = Depends(Provide[Container.user_service]),):
     total_count, users = user_service.get_users(page, items_per_page)
     return {"total_count": total_count, "page": page, "users": users, }
+
+
+# 204 No Content: 요청이 성공했으나 클라이언트가 현재 페이지에서 벗어나지 않아도 된다는 것을 나타냄
+@router.delete("", status_code=204)
+@inject
+def delete_user(
+        user_id: str,
+        user_service: UserService = Depends(Provide[Container.user_service]),):
+    user_service.delete_user(user_id)
