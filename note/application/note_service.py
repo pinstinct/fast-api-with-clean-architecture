@@ -24,13 +24,13 @@ class NoteService:
         user_id: str,
         title: str,
         content: str,
-        meme_date: str,
-        tag_name: list[str] = [],
+        memo_date: str,
+        tag_names: list[str] = [],
     ) -> Note:
         now = datetime.now()
         tags = [
             Tag(id=self.ulid.generate(), name=title, updated_at=now, created_at=now)
-            for title in tag_name
+            for title in tag_names
         ]
 
         note = Note(
@@ -38,7 +38,7 @@ class NoteService:
             user_id=user_id,
             title=title,
             content=content,
-            memo_date=meme_date,
+            memo_date=memo_date,
             tags=tags,
             created_at=now,
             updated_at=now,
