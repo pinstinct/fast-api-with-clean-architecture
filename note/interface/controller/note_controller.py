@@ -88,3 +88,33 @@ def get_note(id: str, current_user: Annotated[CurrentUser, Depends(get_current_u
     response = asdict(note)
     response.update({"tags": [tag.name for tag in note.tags]})
     return response
+
+
+class UpdateNoteBody(BaseModel):
+    """null이 전달되면 업데이트 하지 않고 기존 데이터를 유지한다. """
+    title: str | None = Field(default=None, min_length=1, max_length=64)
+    content: str | None = Field(default=None, min_length=1)
+    memo_date: str | None = Field(default=None, min_length=8, max_length=8)
+    tags: list[str] | None = Field(default=None)
+
+
+@router.post("/{id}", response_model=NoteResponse)
+@inject
+def update_note(
+        id: str,
+        current_user: Annotated[CurrentUser, Depends(get_current_user)],
+        body: UpdateNoteBody,
+        note_service: NoteService = Depends(Provide[Container.note_service]),
+):
+    note = note_service.update_note(
+        user_id=current_user.id,
+        id=id,
+        title=body.title,
+        content=body.content,
+        memo_date=body.memo_date,
+        tag_names=body.tags,
+    )
+
+    response = asdict(note)
+    response.update({"tags": [tag.name for tag in note.tags]})
+    return response
