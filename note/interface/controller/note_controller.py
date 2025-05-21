@@ -118,3 +118,13 @@ def update_note(
     response = asdict(note)
     response.update({"tags": [tag.name for tag in note.tags]})
     return response
+
+
+@router.delete("/{id}", status_code=204)
+@inject
+def delete_note(
+        id: str,
+        current_user: Annotated[CurrentUser, Depends(get_current_user)],
+        note_service: NoteService = Depends(Provide[Container.note_service]),
+):
+    note_service.delete_note(user_id=current_user.id, id=id)
