@@ -128,3 +128,32 @@ def delete_note(
         note_service: NoteService = Depends(Provide[Container.note_service]),
 ):
     note_service.delete_note(user_id=current_user.id, id=id)
+
+
+@router.get("/tags/{tag_name}/notes", response_model=GetNotesResponse)
+@inject
+def get_notes_by_tags(
+        tag_name: str,
+        page: int = 1,
+        items_per_page: int = 10,
+        current_user: CurrentUser = Depends(get_current_user()),
+        note_service: NoteService = Depends(Provide[Container.note_service]),
+):
+    total_count, notes = note_service.get_notes_by_tag(
+        user_id=current_user.id,
+        tag_name=tag_name,
+        page=page,
+        items_per_page=items_per_page,
+    )
+
+    res_notes = []
+    for note in notes:
+        note_dict = asdict(note)
+        note_dict.update({"tags": [tag.name for tag in note.tags]})
+        res_notes.append(note_dict)
+
+    return {
+        "total_count": total_count,
+        "page": page,
+        "notes": res_notes
+    }
