@@ -129,4 +129,24 @@ class NoteRepository(InterfaceNoteRepository):
 
     def get_notes_by_tag_name(self, user_id: str, tag_name: str,
                               page: int, items_per_page: int) -> tuple[int, list[Note]]:
-        pass
+        with SessionLocal() as db:
+            tag = db.query(Tag).filter_by(name=tag_name).first()
+
+            if not tag:
+                return 0, []
+
+            query = (
+                db.query(Note)
+                # .options(joinedload(Note.tags))
+                .filter(
+                    Note.user_id == user_id,
+                    Note.tags.any(id=tag.id),  # 찾은 태그를 가지고 있는 노트를 모두 조회
+                )
+            )
+
+            total_count = query.count()
+            notes = query.offset(
+                (page - 1) * items_per_page).limit(items_per_page).all()
+
+        note_vos = [NoteVO(**row_to_dict(note)) for note in notes]
+        return total_count, note_vos
