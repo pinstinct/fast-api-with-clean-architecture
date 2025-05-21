@@ -5,7 +5,7 @@ from sqlalchemy.orm import joinedload  # 연관 테이블을 데이터를 함께
 from database import SessionLocal
 from note.domain.note import Note as NoteVO
 from note.domain.repository.note_repo import InterfaceNoteRepository
-from note.infra.db_models.note import Note
+from note.infra.db_models.note import Note, Tag
 from utils.db_utils import row_to_dict
 
 
@@ -39,8 +39,35 @@ class NoteRepository(InterfaceNoteRepository):
 
         return NoteVO(**row_to_dict(note))
 
-    def save(self, user_id: str, note: Note) -> Note:
-        pass
+    def save(self, user_id: str, note_vo: NoteVO) -> Note:
+        with SessionLocal() as db:
+            tags: list[Tag] = []
+            for tag in note_vo.tags:
+                existing_tag = db.query(Tag).filter(Tag.name == tag.name).first()
+                if existing_tag:
+                    tags.append(existing_tag)
+                else:
+                    tags.append(
+                        Tag(
+                            id=tag.id,
+                            name=tag.name,
+                            created_at=tag.created_at,
+                            updated_at=tag.updated_at,
+                        )
+                    )
+            new_note = Note(
+                id=note_vo.id,
+                user_id=user_id,
+                title=note_vo.title,
+                content=note_vo.content,
+                memo_date=note_vo.memo_date,
+                tags=tags,
+                created_at=note_vo.created_at,
+                updated_at=note_vo.updated_at,
+            )
+
+            db.add(new_note)
+            db.commit()
 
     def update(self, user_id: str, note: Note) -> Note:
         pass
