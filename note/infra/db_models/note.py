@@ -29,7 +29,12 @@ class Note(Base):
     )
     # relationship 함수를 이용해 다대다 관계를 맺는다.
     # back_populates 옵션을 이용해 노트 객체를 가져올 때 연관된 태그 객체도 모두 가져온다.
-    tags = relationship("Tag", secondary=note_tag_association, back_populates="notes")
+    # 레이지 로딩 적용, 두 테이블의 조인 연산이 필요할 때 수행한다
+    tags = relationship(
+        "Tag",
+        secondary=note_tag_association,
+        back_populates="notes",
+        lazy="joined",)
 
 
 class Tag(Base):
@@ -41,4 +46,8 @@ class Tag(Base):
     updated_at = Column(
         DateTime, nullable=False, default=datetime.utcnow(), onupdate=datetime.utcnow()
     )
-    notes = relationship("Note", secondary=note_tag_association, back_populates="tags")
+    notes = relationship(
+        "Note",
+        secondary=note_tag_association,
+        back_populates="tags",
+        lazy="joined",)
