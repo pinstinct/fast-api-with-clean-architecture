@@ -27,7 +27,7 @@ class NoteRepository(InterfaceNoteRepository):
         note_vos = [NoteVO(**row_to_dict(note)) for note in notes]
         return total_count, note_vos
 
-    def find_by_id(self, user_id: str, note: Note) -> Note:
+    def find_by_id(self, user_id: str, note: Note) -> NoteVO:
         with SessionLocal() as db:
             note = (
                 db.query(Note).options(joinedload(Note.tags))
@@ -39,7 +39,7 @@ class NoteRepository(InterfaceNoteRepository):
 
         return NoteVO(**row_to_dict(note))
 
-    def save(self, user_id: str, note_vo: NoteVO) -> Note:
+    def save(self, user_id: str, note_vo: NoteVO):
         with SessionLocal() as db:
             tags: list[Tag] = []
             for tag in note_vo.tags:
@@ -69,14 +69,63 @@ class NoteRepository(InterfaceNoteRepository):
             db.add(new_note)
             db.commit()
 
-    def update(self, user_id: str, note: Note) -> Note:
-        pass
+    def update(self, user_id: str, note_vo: NoteVO) -> NoteVO:
+        with SessionLocal() as db:
+            self.delete_tags(user_id, note_vo.id)
+
+            note = (
+                db.query(Note).filter(Note.user_id == user_id, Note.id == note_vo.id)
+                .first()
+            )
+            if not note:
+                raise HTTPException(status_code=422)
+
+            note.title = note_vo.title
+            note.content = note_vo.content
+            note.memo_date = note_vo.memo_date
+
+            tags: list[Tag] = []
+            for tag in note_vo.tags:
+                existing_tag = db.query(Tag).filter(Tag.name == tag.name).first()
+
+                if existing_tag:
+                    tags.append(existing_tag)
+                else:
+                    tags.append(
+                        Tag(
+                            id=tag.id,
+                            name=tag.name,
+                            created_at=tag.created_at,
+                            updated_at=tag.updated_at,
+                        )
+                    )
+
+            note.tags = tags
+
+            db.add(note)
+            db.commit()
+
+            return NoteVO(**row_to_dict(note))
 
     def delete(self, user_id: str, id: str):
         pass
 
     def delete_tags(self, user_id: str, id: str):
-        pass
+        with SessionLocal() as db:
+            note = db.query(Note).filter(Note.user_id == user_id, Note.id == id).first()
+            if not note:
+                raise HTTPException(status_code=422)
+
+            note.tags = []
+            db.add(note)
+            db.commit()
+
+            # 고아가 된(노트에 연결돼 있지 않은) 태그 삭제
+            unused_tags = db.query(Tag).filter(~Tag.notes().any()).all()
+            for tag in unused_tags:
+                db.delete(tag)
+
+            db.commit()
 
     def get_notes_by_tag_name(self, user_id: str, tag_name: str,
                               page: int, items_per_page: int) -> tuple[int, list[Note]]:
