@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     database_username: str
     database_password: str
     jwt_secret: str
+    email_password: str
+    sender_email: str
 
 
 @lru_cache  # 이미 값이 있다면 그 값을 반환

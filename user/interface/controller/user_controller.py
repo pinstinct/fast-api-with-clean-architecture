@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated
 
 from dependency_injector.wiring import Provide, inject
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr, Field
 
@@ -43,10 +43,14 @@ class GetUserResponse(BaseModel):
 
 @router.post("", status_code=201)
 @inject
-def create_user(user: CreateUserBody, user_service: UserService = Depends(
-        Provide[Container.user_service])) -> UserResponse:
+def create_user(
+    user: CreateUserBody,
+    background_tasks: BackgroundTasks,  # 엔드포인트 함수에서 Depends 없이 주입 받아야 한다.
+    user_service: UserService = Depends(Provide[Container.user_service]),
+) -> UserResponse:
     created_user = user_service.create_user(name=user.name, email=user.email,
-                                            password=user.password)
+                                            password=user.password,
+                                            background_tasks=background_tasks)
     return created_user
 
 
@@ -81,13 +85,14 @@ def get_users(page: int = 1,
 @inject
 def delete_user(
         current_user: Annotated[CurrentUser, Depends(get_current_user)],
-        user_service: UserService = Depends(Provide[Container.user_service]),):
+        user_service: UserService = Depends(Provide[Container.user_service]), ):
     user_service.delete_user(current_user.id)
 
 
 @router.post("/login")
 @inject
-def logi(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],  # form-data로 데이터를 전달받아야 하고, 데이터 형식은 username과 password로 고정, OAuth2 스펙에 정의
+def logi(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+         # form-data로 데이터를 전달받아야 하고, 데이터 형식은 username과 password로 고정, OAuth2 스펙에 정의
          user_service: UserService = Depends(Provide[Container.user_service]), ):
     access_token = user_service.login(
         email=form_data.username,

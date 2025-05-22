@@ -1,11 +1,12 @@
 from datetime import datetime
 
 from dependency_injector.wiring import inject
-from fastapi import HTTPException
+from fastapi import BackgroundTasks, HTTPException
 from starlette import status
 from ulid import ULID
 
 from common.auth import Role, create_access_token
+from user.application.email_service import EmailService
 from user.domain.repository.user_repo import InterfaceUserRepository
 from user.domain.user import User
 from utils.crypto import Crypto
@@ -22,17 +23,20 @@ class UserService:
 
     @inject  # 주입받은 객체를 사용한다고 선언
     # user_repo 팩토리를 선언해두었기 때문에 타입 선언만으로도 UserService가 생성될 때 팩토리를 수행한 객체가 주입
-    def __init__(self, user_repo: InterfaceUserRepository):
+    def __init__(self, user_repo: InterfaceUserRepository, email_service: EmailService):
         self.user_repo = user_repo  # 의존성 역전
         self.ulid = ULID()
         self.crypto = Crypto()
+        self.email_service = email_service
 
     def create_user(
-        self,
-        name: str,
-        email: str,
-        password: str,
-        memo: str | None = None,
+            self,
+            name: str,
+            email: str,
+            password: str,
+            background_tasks: BackgroundTasks,
+            memo: str | None = None,
+
     ):
         _user = None  # 데이터베이스에서 찾은 유저
 
@@ -58,14 +62,16 @@ class UserService:
             updated_at=now,
         )
         self.user_repo.save(user)
+
+        background_tasks.add_task(self.email_service.send_mail, user.email)
         return user
 
     def update_user(
-        self,
-        user_id: str,
-        name: str | None = None,
-        password: str | None = None,
-        memo: str | None = None,
+            self,
+            user_id: str,
+            name: str | None = None,
+            password: str | None = None,
+            memo: str | None = None,
     ):
         user = self.user_repo.find_by_id(user_id)
 
