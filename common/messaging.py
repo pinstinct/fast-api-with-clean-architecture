@@ -1,6 +1,7 @@
 from celery import Celery
 
 from config import get_settings
+from user.application.send_welcome_email_task import SendWelcomeEmailTask
 
 settings = get_settings()
 
@@ -16,3 +17,5 @@ celery = Celery(
     # 샐러리 태스크가 정의된 모듈을 지정
     include=["example.celery_task"],
 )
+
+celery.register_task(SendWelcomeEmailTask())

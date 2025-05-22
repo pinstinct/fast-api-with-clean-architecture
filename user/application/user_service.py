@@ -7,6 +7,7 @@ from ulid import ULID
 
 from common.auth import Role, create_access_token
 from user.application.email_service import EmailService
+from user.application.send_welcome_email_task import SendWelcomeEmailTask
 from user.domain.repository.user_repo import InterfaceUserRepository
 from user.domain.user import User
 from utils.crypto import Crypto
@@ -34,7 +35,7 @@ class UserService:
             name: str,
             email: str,
             password: str,
-            background_tasks: BackgroundTasks,
+            # background_tasks: BackgroundTasks,
             memo: str | None = None,
 
     ):
@@ -63,7 +64,8 @@ class UserService:
         )
         self.user_repo.save(user)
 
-        background_tasks.add_task(self.email_service.send_mail, user.email)
+        SendWelcomeEmailTask().run(user.email)
+        # background_tasks.add_task(self.email_service.send_mail, user.email)
         return user
 
     def update_user(

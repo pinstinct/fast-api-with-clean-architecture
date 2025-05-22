@@ -45,12 +45,13 @@ class GetUserResponse(BaseModel):
 @inject
 def create_user(
     user: CreateUserBody,
-    background_tasks: BackgroundTasks,  # 엔드포인트 함수에서 Depends 없이 주입 받아야 한다.
+    # background_tasks: BackgroundTasks,  # 엔드포인트 함수에서 Depends 없이 주입 받아야 한다.
     user_service: UserService = Depends(Provide[Container.user_service]),
 ) -> UserResponse:
     created_user = user_service.create_user(name=user.name, email=user.email,
                                             password=user.password,
-                                            background_tasks=background_tasks)
+                                            # background_tasks=background_tasks,
+                                            )
     return created_user
 
 
