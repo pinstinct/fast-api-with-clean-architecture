@@ -1,5 +1,4 @@
-from http.client import HTTPException
-
+from fastapi import HTTPException
 from sqlalchemy.orm import joinedload  # 연관 테이블을 데이터를 함께 가져옴
 
 from database import SessionLocal
@@ -27,7 +26,7 @@ class NoteRepository(InterfaceNoteRepository):
         note_vos = [NoteVO(**row_to_dict(note)) for note in notes]
         return total_count, note_vos
 
-    def find_by_id(self, user_id: str, note: Note) -> NoteVO:
+    def find_by_id(self, user_id: str, id: str) -> NoteVO:
         with SessionLocal() as db:
             note = (
                 db.query(Note).options(joinedload(Note.tags))
@@ -108,7 +107,15 @@ class NoteRepository(InterfaceNoteRepository):
             return NoteVO(**row_to_dict(note))
 
     def delete(self, user_id: str, id: str):
-        pass
+        with SessionLocal() as db:
+            self.delete_tags(user_id, id)
+
+            note = db.query(Note).filter(Note.user_id == user_id, Note.id == id).first()
+            if not note:
+                raise HTTPException(status_code=422)
+
+            db.delete(note)
+            db.commit()
 
     def delete_tags(self, user_id: str, id: str):
         with SessionLocal() as db:
@@ -121,7 +128,7 @@ class NoteRepository(InterfaceNoteRepository):
             db.commit()
 
             # 고아가 된(노트에 연결돼 있지 않은) 태그 삭제
-            unused_tags = db.query(Tag).filter(~Tag.notes().any()).all()
+            unused_tags = db.query(Tag).filter(~Tag.notes.any()).all()
             for tag in unused_tags:
                 db.delete(tag)
 

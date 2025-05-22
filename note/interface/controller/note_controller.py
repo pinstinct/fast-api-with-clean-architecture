@@ -136,7 +136,7 @@ def get_notes_by_tags(
         tag_name: str,
         page: int = 1,
         items_per_page: int = 10,
-        current_user: CurrentUser = Depends(get_current_user()),
+        current_user: CurrentUser = Depends(get_current_user),
         note_service: NoteService = Depends(Provide[Container.note_service]),
 ):
     total_count, notes = note_service.get_notes_by_tag(
