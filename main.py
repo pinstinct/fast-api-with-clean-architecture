@@ -6,6 +6,7 @@ from starlette.responses import JSONResponse
 
 from containers import Container
 from example.async_ex import router as async_ex_routers
+from example.background_task import router as bg_ex_routers
 from example.env_ex import router as env_ex_routers
 from example.sync_ex import router as sync_ex_routers
 from note.interface.controller.note_controller import router as note_routers
@@ -17,6 +18,7 @@ app.include_router(sync_ex_routers)
 app.include_router(async_ex_routers)
 app.include_router(env_ex_routers)
 app.include_router(note_routers)
+app.include_router(bg_ex_routers)
 app.container = Container()  # 어플리케이션 구동 시, 작성한 컨테이너 클래스 등록
 
 
