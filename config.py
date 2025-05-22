@@ -14,6 +14,8 @@ class Settings(BaseSettings):
     jwt_secret: str
     email_password: str
     sender_email: str
+    celery_broker_url: str
+    celery_backend_url: str
 
 
 @lru_cache  # 이미 값이 있다면 그 값을 반환

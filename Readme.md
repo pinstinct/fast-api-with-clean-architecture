@@ -188,3 +188,25 @@ FastAPI에서 제공하는 `BackgroundTasks` 클래스를 이용해 간단히 �
 - 태스크(task): 샐러리에서 수행되는 개별 작업을 나타낸다. 이는 보통 함수로 `@celery_app.task` 데커레이터로 구현한다. 
 
 브로커와 백엔드 역할을 하는 시스템으로서 레디스나 RabbitMQ 등을 활용할 수 있다.
+
+#### 셀러리 워커 구동
+
+만약 워커를 여러 개 생성하고 싶다면 새로운 창에서 각각 구동하면 된다.
+
+```shell
+celery -A common.messaging.celery worker -n worker1 --loglevel=info
+
+# 워커 추가 
+celery -A common.messaging.celery worker -n worker2 --loglevel=info
+```
+
+#### 파이썬 인터프리터에서 테스트 
+
+
+```shell
+from example.celery_task import add
+task1 = add.delay(1, 2)
+task2 = add.delay(2, 3)
+task1.result
+task2.result
+```
