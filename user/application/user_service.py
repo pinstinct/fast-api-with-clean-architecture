@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from dependency_injector.wiring import inject
-from fastapi import BackgroundTasks, HTTPException
+from fastapi import HTTPException
 from starlette import status
 from ulid import ULID
 
@@ -24,11 +24,15 @@ class UserService:
 
     @inject  # 주입받은 객체를 사용한다고 선언
     # user_repo 팩토리를 선언해두었기 때문에 타입 선언만으로도 UserService가 생성될 때 팩토리를 수행한 객체가 주입
-    def __init__(self, user_repo: InterfaceUserRepository, email_service: EmailService):
+    def __init__(
+            self, user_repo: InterfaceUserRepository, email_service: EmailService,
+            ulid: ULID, crypto: Crypto, send_welcome_email_task: SendWelcomeEmailTask,
+    ):
         self.user_repo = user_repo  # 의존성 역전
-        self.ulid = ULID()
-        self.crypto = Crypto()
+        self.ulid = ulid
+        self.crypto = crypto
         self.email_service = email_service
+        self.send_welcome_email_task = send_welcome_email_task
 
     def create_user(
             self,
@@ -64,7 +68,7 @@ class UserService:
         )
         self.user_repo.save(user)
 
-        SendWelcomeEmailTask().run(user.email)
+        self.send_welcome_email_task.delay(user.email)
         # background_tasks.add_task(self.email_service.send_mail, user.email)
         return user
 
