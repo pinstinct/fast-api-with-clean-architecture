@@ -203,7 +203,7 @@ celery -A common.messaging.celery worker -n worker2 --loglevel=info
 
 #### 파이썬 인터프리터에서 테스트
 
-```shell
+```python
 from example.celery_task import add
 task1 = add.delay(1, 2)
 task2 = add.delay(2, 3)

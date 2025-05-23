@@ -49,6 +49,9 @@ class CurrentUser:
     id: str
     role: Role
 
+    def __str__(self):
+        return f"{self.id}({self.role})"
+
 
 def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
     """oauth2_scheme을 통해 얻은 토큰을 복호화한 페이로드에서 현재 유저 정보를 구한다."""

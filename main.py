@@ -11,6 +11,7 @@ from example.context_sample import router as context_ex_router
 from example.env_ex import router as env_ex_routers
 from example.middleware import create_sample_middleware
 from example.sync_ex import router as sync_ex_routers
+from middlewares import create_middlewares
 from note.interface.controller.note_controller import router as note_routers
 from user.interface.controller.user_controller import router as user_routers
 
@@ -25,6 +26,7 @@ app.include_router(context_ex_router)
 app.container = Container()  # 어플리케이션 구동 시, 작성한 컨테이너 클래스 등록
 
 create_sample_middleware(app)
+create_middlewares(app)
 
 
 @app.exception_handler(RequestValidationError)
